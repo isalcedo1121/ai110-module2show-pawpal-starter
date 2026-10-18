@@ -42,17 +42,32 @@ pip install -r requirements.txt
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
 
+## 🧩 Implementation Summary
+
+The scheduling logic lives in `pawpal_system.py`, and `main.py` runs a small terminal demo of it. The system is built from four classes:
+
+- **Task**: one care activity (for example a walk or a feeding). It has a description (`name`), a `duration` in minutes, a `priority` (higher number = more important), a `due_time` in `HH:MM` format, a `frequency`, and a `completed` flag set by `mark_complete()`.
+- **Pet**: a pet's details (name, species, age) plus its own list of tasks, managed with `add_task()` and `remove_task()`.
+- **Owner**: keeps a list of pets (`add_pet()`, `remove_pet()`) and gathers every pet's tasks into one list with `get_all_tasks()`.
+- **Scheduler**: is created with an `Owner`. `generate_schedule(available_minutes)` asks the owner for all tasks, drops completed ones, and picks tasks highest priority first (earlier time breaks ties), skipping any that would go over the available minutes. It returns the chosen tasks in time order.
+
+How they work together: an **Owner** has many **Pets**, and each **Pet** has many **Tasks**. The **Scheduler** keeps no task list of its own. It reads tasks through the Owner each time, so the plan always matches the pets' current tasks.
+
 ## 🖥️ Sample Output
 
 Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
 
+Output of `python main.py` (60 available minutes):
+
+```text
+Today's Schedule
+----------------
+07:30  Feeding (10 min) [priority: 3]
+08:00  Morning walk (30 min) [priority: 3]
+09:00  Give medication (5 min) [priority: 2]
 ```
-# e.g.:
-# Daily plan for Biscuit (Golden Retriever):
-#   08:00 — Morning walk (30 min) [priority: high]
-#   09:00 — Feeding (10 min) [priority: high]
-#   ...
-```
+
+The scheduler picks tasks by priority (higher number first) and skips any task that would go over the available time. Here the three highest-priority tasks use 45 of the 60 minutes, so the 20-minute, priority-1 "Evening fetch" is left out. The chosen tasks are then listed in time order.
 
 ## 🧪 Testing PawPal+
 

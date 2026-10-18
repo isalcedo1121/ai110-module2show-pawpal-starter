@@ -43,12 +43,22 @@ organize tasks based on priority and available time.
 **a. Constraints and priorities**
 
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
+
+My scheduler considers task priority, duration, due time, and the total time available. It prioritizes higher-priority tasks and uses due time to break ties. It also skips completed tasks and tasks that don’t fit within the available time.
+
 - How did you decide which constraints mattered most?
+
+I focused on priority and available time because some pet care tasks are more important than others, and owners might not have enough time to complete everything. Due time helps organize the selected tasks into a daily schedule.
 
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
+
+My scheduler prioritizes more important tasks over less important ones, even if that means skipping some activities. For example, it might choose feeding and medication over playtime when there isn’t enough time for everything.
+
 - Why is that tradeoff reasonable for this scenario?
+
+I think this is reasonable because essential care tasks should come before optional activities. The scheduler also tries to use the remaining time by checking whether shorter tasks can still fit.
 
 ---
 
@@ -57,12 +67,22 @@ organize tasks based on priority and available time.
 **a. How you used AI**
 
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
+
+I used Claude to help design the UML diagram, generate the initial Python class skeletons, and implement the core functionality. I also used it to review the architecture, identify potential problems, and write tests.
+
 - What kinds of prompts or questions were most helpful?
+
+The most helpful prompts were asking Claude to review my existing code and identify problems before making changes. This helped me catch an issue where the Scheduler and Pet classes stored separate task lists.
 
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
+
+Claude suggested several improvements, including changing how the Scheduler accesses tasks and adding more input validation. I decided to focus on fixing the relationship between Scheduler and Owner rather than implementing every suggested feature immediately.
+
 - How did you evaluate or verify what the AI suggested?
+
+I reviewed the updated UML diagram using Mermaid Live Editor, ran the demo script to check the scheduling output, and used pytest to verify task completion and task addition. Both tests passed.
 
 ---
 
