@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 
+import pawpal_system
 from pawpal_system import Owner, Pet, Scheduler, Task
 
 
@@ -96,6 +97,38 @@ def test_completing_twice_does_not_duplicate():
 
     assert second is None
     assert len(mochi.tasks) == 2  # the original plus one replacement
+
+
+def test_completing_again_on_next_day_does_not_duplicate(monkeypatch):
+    initial_date = date(2026, 10, 18)
+
+    class MockDate(date):
+        current = initial_date
+
+        @classmethod
+        def today(cls):
+            return cls.current
+
+    monkeypatch.setattr(pawpal_system, "date", MockDate)
+    scheduler, mochi, _ = make_scheduler()
+    walk = Task("Morning walk", duration=30, priority=3, due_time="08:00",
+                frequency="daily", due_date=initial_date)
+    mochi.add_task(walk)
+
+    next_walk = scheduler.mark_task_complete(walk)
+
+    assert walk.completed is True
+    assert next_walk is not None
+    assert next_walk.due_date == initial_date + timedelta(days=1)
+    assert next_walk.completed is False
+    assert len(mochi.tasks) == 2
+
+    MockDate.current = initial_date + timedelta(days=1)
+    second = scheduler.mark_task_complete(walk)
+
+    assert second is None
+    assert mochi.tasks == [walk, next_walk]
+    assert next_walk.completed is False
 
 
 def test_detect_conflicts_flags_identical_date_and_time():

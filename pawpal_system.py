@@ -86,12 +86,14 @@ class Scheduler:
         Leave a filter as None to skip it. Pet names match case-insensitively.
         """
         matches: list[Task] = []
-        for pet in self.owner.pets:
-            if pet_name is not None and pet.name.lower() != pet_name.lower():
+        for task in self.owner.get_all_tasks():
+            if completed is not None and task.completed != completed:
                 continue
-            for task in pet.tasks:
-                if completed is None or task.completed == completed:
-                    matches.append(task)
+            if pet_name is not None:
+                pet = self._pet_for(task)
+                if pet is None or pet.name.lower() != pet_name.lower():
+                    continue
+            matches.append(task)
         return matches
 
     def _pet_for(self, task: Task) -> Pet | None:
@@ -104,12 +106,15 @@ class Scheduler:
     def mark_task_complete(self, task: Task) -> Task | None:
         """Mark a task done and, if it repeats, add its next occurrence to the same pet.
 
-        Returns the new task, or None if the task doesn't repeat or its next
-        occurrence already exists (so completing twice won't add duplicates).
+        Returns the new task, or None if the task is already complete, doesn't
+        repeat, or its next occurrence already exists.
         """
         pet = self._pet_for(task)
         if pet is None:
             raise ValueError(f"Task '{task.name}' does not belong to any of {self.owner.name}'s pets.")
+
+        if task.completed:
+            return None
 
         task.mark_complete()
 
