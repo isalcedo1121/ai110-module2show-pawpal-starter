@@ -87,14 +87,15 @@ Sample test output:
 
 ## 📐 Smarter Scheduling
 
-> Fill in once you've implemented scheduling logic.
+All scheduling logic lives in the `Scheduler` class in `pawpal_system.py`, and each feature is demonstrated in `main.py`.
 
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+| Task sorting | `Scheduler.sort_by_time()` | Returns a new list ordered by `due_date`, then `due_time` (earliest first), using `sorted()` with a lambda key. `HH:MM` strings sort correctly because they are zero-padded. The original list is not changed. |
+| Filtering | `Scheduler.filter_tasks()` | Filters by pet name (case-insensitive), by completion status, or both. Either filter can be left out. Reads tasks through `Owner` → `Pet` instead of keeping a separate task list. |
+| Daily plan | `Scheduler.generate_schedule()` | Uses only incomplete tasks due today or earlier (future tasks are left out). Picks the highest priority first, with earlier time breaking ties, and skips any task that would go over `available_minutes`. Returns the plan sorted by time. |
+| Conflict handling | `Scheduler.detect_conflicts()` | Groups tasks by `(due_date, due_time)` and returns a warning such as `Conflict on 2026-10-18 at 08:00: Morning walk (Mochi), Play time (Luna)` for each slot with more than one task, for the same pet or different pets. Returns an empty list when there are no conflicts and never raises an error or removes tasks. **Only exact date/time matches are detected; overlapping durations are not** (e.g., a 30-minute task at 08:00 and another at 08:15 are not flagged). |
+| Recurring tasks | `Scheduler.mark_task_complete()` | Marks the task done. If it is `"daily"` or `"weekly"`, adds a new incomplete copy to the same pet due 1 or 7 days later (using `timedelta`). `"once"` tasks do not repeat. Completing the same task twice does not create a duplicate. |
 
 ## 📸 Demo Walkthrough
 

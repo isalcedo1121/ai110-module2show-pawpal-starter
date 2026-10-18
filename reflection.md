@@ -56,9 +56,13 @@ I focused on priority and available time because some pet care tasks are more im
 
 My scheduler prioritizes more important tasks over less important ones, even if that means skipping some activities. For example, it might choose feeding and medication over playtime when there isn’t enough time for everything.
 
+Another tradeoff is that conflict detection only flags tasks with exactly the same date and time. It doesn't check whether task durations overlap, so a 30-minute walk at 08:00 and a feeding at 08:15 would not be flagged.
+
 - Why is that tradeoff reasonable for this scenario?
 
 I think this is reasonable because essential care tasks should come before optional activities. The scheduler also tries to use the remaining time by checking whether shorter tasks can still fit.
+
+For conflicts, exact matching keeps the logic simple and easy to test. Most pet care tasks are short and usually set at round times, so it still catches the most common mistake of booking two things at the same time. Since the scheduler only shows a warning and doesn't remove anything, the owner can still decide what to do. I also chose to keep the explicit loops in detect_conflicts() instead of a shorter, more "Pythonic" version because they are easier to follow, and performance isn't an issue with only a handful of tasks per day. Checking overlapping durations would be a good next improvement.
 
 ---
 
