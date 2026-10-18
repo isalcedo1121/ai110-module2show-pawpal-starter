@@ -71,19 +71,44 @@ The scheduler picks tasks by priority (higher number first) and skips any task t
 
 ## 🧪 Testing PawPal+
 
+Run the test suite from the project root (with the virtual environment activated):
+
+```bash
+python -m pytest
+```
+
 ```bash
 # Run the full test suite:
 pytest
-
-# Run with coverage:
-pytest --cov
 ```
+
+The automated tests in `tests/test_pawpal.py` cover:
+
+- **Basics:** marking a task complete and adding a task to a pet.
+- **Sorting:** `sort_by_time()` orders tasks by time and puts earlier dates first, without changing the original list.
+- **Recurrence:** completing a daily task creates an incomplete copy due tomorrow, weekly tasks repeat after 7 days, and completing the same task twice does not create a duplicate.
+- **Conflict detection:** two tasks at the same date and time produce one warning naming both tasks and pets, while the same time on different dates produces none.
+- **Edge case:** a pet with no tasks returns empty results from filtering, scheduling, and conflict detection without errors.
+
+Dates in the tests are calculated from `date.today()`, so they pass on any day.
 
 Sample test output:
 
+```text
+============================= test session starts ==============================
+platform darwin -- Python 3.14.6, pytest-9.1.1, pluggy-1.7.0
+rootdir: /Users/ivansalcedo/repos/ai110-module2show-pawpal-starter
+plugins: anyio-4.15.1
+collected 10 items
+
+tests/test_pawpal.py ..........                                          [100%]
+
+============================== 10 passed in 0.01s ==============================
 ```
-# Paste your pytest output here
-```
+
+**Confidence Level: ⭐⭐⭐⭐☆ (4/5)**
+
+All 10 automated tests pass, including sorting, recurrence, and conflict detection. However, some scheduling behaviors (such as priority selection under the time limit and leaving out completed or future tasks) and the Streamlit UI have not been thoroughly tested yet.
 
 ## 📐 Smarter Scheduling
 
