@@ -95,12 +95,22 @@ I reviewed the updated UML diagram using Mermaid Live Editor, ran the demo scrip
 **a. What you tested**
 
 - What behaviors did you test?
+
+The initial backend suite contained 10 pytest tests in `tests/test_pawpal.py`. They check that a task can be marked complete and added to a pet, that `sort_by_time()` orders tasks by time and puts earlier dates first without changing the original list, that completing a daily task creates a new task for tomorrow and a weekly task creates one 7 days later, and that completing the same task twice doesn't create a duplicate. They also check that two tasks with the same date and time are flagged as a conflict, that the same time on different dates is not, and that a pet with no tasks doesn't cause errors when filtering, scheduling, or checking for conflicts.
+
 - Why were these tests important?
+
+These are the parts of the scheduler that are easiest to get wrong. Recurrence depends on date calculations and could easily create duplicate tasks, and conflict detection needs to catch real clashes without giving false warnings. The tests calculate dates from `date.today()` instead of using fixed dates, so they keep passing on any day. Along with the tests, I ran `main.py` after each change to check the output.
 
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
+
+I would rate my confidence 4 out of 5. All 10 tests pass, including sorting, recurrence, and conflict detection. However, some scheduling behaviors, like choosing tasks by priority under the time limit and leaving out completed or future tasks, don't have their own tests yet, and the Streamlit UI isn't covered by automated tests.
+
 - What edge cases would you test next if you had more time?
+
+I would add tests for `generate_schedule()` choosing tasks by priority and skipping tasks that don't fit, leaving out completed and future-dated tasks, one-time tasks not repeating, completing a task that doesn't belong to any pet, and two tasks for the same pet at the same time. I would also test inputs the code doesn't validate yet, like times that aren't zero-padded ("9:00"), a frequency with extra spaces ("daily "), and negative available minutes.
 
 ---
 
@@ -110,10 +120,16 @@ I reviewed the updated UML diagram using Mermaid Live Editor, ran the demo scrip
 
 - What part of this project are you most satisfied with?
 
+I'm most satisfied that the project became a working application with a modular backend and a Streamlit interface. The logic lives in `pawpal_system.py`, separate from the UI, so the same classes are used by `main.py`, the tests, and `app.py`. Keeping tasks in one place, on each pet, with the Scheduler reading them through the Owner, made it easier to add sorting, filtering, recurrence, and conflict detection later without changing the overall design.
+
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
 
+I would add a way to mark tasks complete in the Streamlit app, so recurring tasks would also show up in the UI instead of only in the CLI demo. I would also add persistence so pets and tasks aren't lost when the page is refreshed, and improve conflict detection to catch overlapping durations instead of only exact time matches.
+
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+
+AI can speed up development a lot. Claude helped me with the design, implementation, and testing throughout this project. But reviewing and verifying the generated code is still important. Asking for a review before making changes, deciding which suggestions to accept, and running the tests and demo after each step helped me make sure the code did what I expected and that the design stayed simple.
