@@ -55,6 +55,7 @@ if "owner" not in st.session_state:
     st.session_state.owner = Owner(owner_name)
 owner: Owner = st.session_state.owner
 owner.name = owner_name
+scheduler = Scheduler(owner)
 
 # --- Pets --------------------------------------------------------------------
 
@@ -134,13 +135,67 @@ def task_row(task: Task) -> dict:
         "Task": task.name,
         "Duration (min)": task.duration,
         "Priority": PRIORITY_LABELS.get(task.priority, task.priority),
+        "Status": "Done" if task.completed else "To do",
     }
 
 
+def show_conflicts(tasks: list[Task], where: str) -> None:
+    """Show one st.warning per time slot shared by more than one task."""
+    for message in scheduler.detect_conflicts(tasks):
+        st.warning(
+            f"⚠️ {where}: {message}. Both tasks are kept; change a time if they can't happen together."
+        )
+
+
 all_tasks = owner.get_all_tasks()
+
+st.subheader("Edit Task")
+if not all_tasks:
+    st.info("No tasks to edit. Add a task above.")
+else:
+    edit_index = st.selectbox(
+        "Task to edit",
+        range(len(all_tasks)),
+        format_func=lambda i: (
+            f"{i + 1}. {pet_name_by_task[id(all_tasks[i])]}: {all_tasks[i].name} "
+            f"({all_tasks[i].due_date} {all_tasks[i].due_time})"
+        ),
+    )
+    task_to_edit = all_tasks[edit_index]
+    with st.form(f"edit_task_form_{id(task_to_edit)}"):
+        edit_duration = st.number_input(
+            "New duration (minutes)", min_value=1, max_value=240,
+            value=task_to_edit.duration,
+        )
+        edit_priority = st.selectbox(
+            "New priority", list(PRIORITY_VALUES), index=task_to_edit.priority - 1,
+        )
+        save_task_clicked = st.form_submit_button("Save changes")
+
+    if save_task_clicked:
+        task_to_edit.duration = int(edit_duration)
+        task_to_edit.priority = PRIORITY_VALUES[edit_priority]
+        st.success(f"Updated '{task_to_edit.name}'.")
+
 if all_tasks:
     st.write("Current tasks:")
-    st.table([task_row(task) for task in sorted(all_tasks, key=lambda t: t.due_time)])
+    filter_col1, filter_col2 = st.columns(2)
+    with filter_col1:
+        pet_choice = st.selectbox("Show pet", ["All pets"] + [pet.name for pet in owner.pets])
+    with filter_col2:
+        status_choice = st.selectbox("Show status", ["All", "To do", "Done"])
+
+    shown = scheduler.filter_tasks(
+        pet_name=None if pet_choice == "All pets" else pet_choice,
+        completed={"All": None, "To do": False, "Done": True}[status_choice],
+    )
+    if shown:
+        st.table([task_row(task) for task in scheduler.sort_by_time(shown)])
+    else:
+        st.info("No tasks match these filters.")
+
+    # Check every incomplete task, not just the filtered view, so no clash is hidden.
+    show_conflicts(scheduler.filter_tasks(completed=False), "Task list")
 elif owner.pets:
     st.info("No tasks yet. Add one above.")
 
@@ -154,16 +209,17 @@ available_minutes = st.number_input(
 )
 
 if st.button("Generate schedule"):
-    pending = [task for task in all_tasks if not task.completed]
+    pending = scheduler.filter_tasks(completed=False)
     if not pending:
         st.info("There are no incomplete tasks to schedule. Add some tasks above.")
     else:
-        plan = Scheduler(owner).generate_schedule(int(available_minutes))
+        plan = scheduler.generate_schedule(int(available_minutes))
 
         if plan:
             used = sum(task.duration for task in plan)
             st.success(f"Today's Schedule: {len(plan)} task(s), {used} of {available_minutes} minutes used.")
             st.table([task_row(task) for task in plan])
+            show_conflicts(plan, "Today's plan")
         else:
             st.warning("None of the tasks fit within the available time.")
 
@@ -171,4 +227,4 @@ if st.button("Generate schedule"):
         skipped = [task for task in pending if id(task) not in planned_ids]
         if skipped:
             st.markdown("**Skipped (not enough time left):**")
-            st.table([task_row(task) for task in sorted(skipped, key=lambda t: t.due_time)])
+            st.table([task_row(task) for task in scheduler.sort_by_time(skipped)])

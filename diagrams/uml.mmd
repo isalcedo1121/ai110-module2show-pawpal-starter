@@ -1,15 +1,47 @@
 classDiagram
-    %% Replace the placeholders below with your actual classes, attributes, methods, and relationships.
-    %% Keep this file updated so it matches your final implementation.
-
-    class ClassName {
-        +type attribute
-        +method() returnType
+    class Owner {
+        +str name
+        +list~Pet~ pets
+        +add_pet(pet: Pet) None
+        +remove_pet(pet: Pet) None
+        +get_all_tasks() list~Task~
     }
 
-    class AnotherClass {
-        +type attribute
-        +method() returnType
+    class Pet {
+        <<dataclass>>
+        +str name
+        +str species
+        +int age
+        +list~Task~ tasks
+        +add_task(task: Task) None
+        +remove_task(task: Task) None
     }
 
-    ClassName --> AnotherClass : relationship
+    class Task {
+        <<dataclass>>
+        +str name
+        +int duration
+        +int priority
+        +str due_time
+        +str frequency
+        +bool completed
+        +date due_date
+        +mark_complete() None
+    }
+
+    class Scheduler {
+        +Owner owner
+        +sort_by_time(tasks: list~Task~) list~Task~
+        +filter_tasks(pet_name: str | None, completed: bool | None) list~Task~
+        -_pet_for(task: Task) Pet | None
+        +mark_task_complete(task: Task) Task | None
+        +detect_conflicts(tasks: list~Task~) list~str~
+        +generate_schedule(available_minutes: int) list~Task~
+    }
+
+    note for Task "duration: minutes<br>priority: higher number = higher priority<br>due_time: 24-hour HH:MM string<br>defaults: frequency = daily, completed = False, due_date = today"
+    note for Scheduler "daily tasks repeat after 1 day, weekly after 7<br>conflicts = exact due_date + due_time matches only"
+
+    Owner "1" o-- "0..*" Pet : owns
+    Pet "1" *-- "0..*" Task : has
+    Scheduler "1" --> "1" Owner : plans for
