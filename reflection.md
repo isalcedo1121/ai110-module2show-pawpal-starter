@@ -96,21 +96,23 @@ I reviewed the updated UML diagram using Mermaid Live Editor, ran the demo scrip
 
 - What behaviors did you test?
 
-The initial backend suite contained 10 pytest tests in `tests/test_pawpal.py`. They check that a task can be marked complete and added to a pet, that `sort_by_time()` orders tasks by time and puts earlier dates first without changing the original list, that completing a daily task creates a new task for tomorrow and a weekly task creates one 7 days later, and that completing the same task twice doesn't create a duplicate. They also check that two tasks with the same date and time are flagged as a conflict, that the same time on different dates is not, and that a pet with no tasks doesn't cause errors when filtering, scheduling, or checking for conflicts.
+The project now has 15 passing tests: 11 backend tests in `tests/test_pawpal.py` and 4 Streamlit AppTest tests in `tests/test_app.py`. The backend tests check that a task can be marked complete and added to a pet, that `sort_by_time()` orders tasks by time and puts earlier dates first without changing the original list, that completing a daily task creates a new task for tomorrow and a weekly task creates one 7 days later, and that completing the same task twice doesn't create a duplicate, even on a later day. They also check that two tasks with the same date and time are flagged as a conflict, that the same time on different dates is not, and that a pet with no tasks doesn't cause errors when filtering, scheduling, or checking for conflicts.
+
+The Streamlit tests check the empty editor, saving changes to the original task, and selecting the correct task when different pets have tasks with the same name. They also check that saved values survive reruns and that editing duration or priority changes scheduling decisions.
 
 - Why were these tests important?
 
-These are the parts of the scheduler that are easiest to get wrong. Recurrence depends on date calculations and could easily create duplicate tasks, and conflict detection needs to catch real clashes without giving false warnings. The tests calculate dates from `date.today()` instead of using fixed dates, so they keep passing on any day. Along with the tests, I ran `main.py` after each change to check the output.
+These are the parts of the scheduler that are easiest to get wrong. Recurrence depends on date calculations and could easily create duplicate tasks, and conflict detection needs to catch real clashes without giving false warnings. Most backend tests calculate dates from `date.today()`, and the cross-day recurrence regression uses a mocked date to simulate the next day, so they keep passing on any day. Along with the tests, I ran `main.py` after each change to check the output.
 
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
 
-I would rate my confidence 4 out of 5. All 10 tests pass, including sorting, recurrence, and conflict detection. However, some scheduling behaviors, like choosing tasks by priority under the time limit and leaving out completed or future tasks, don't have their own tests yet, and the Streamlit UI isn't covered by automated tests.
+I would rate my confidence 4 out of 5. All 15 tests pass, including 11 backend tests and 4 Streamlit AppTest tests. They cover sorting, recurrence, conflict detection, and task editing, including how duration and priority changes affect the schedule. However, leaving out completed or future tasks and some other Streamlit workflows don't have their own tests yet.
 
 - What edge cases would you test next if you had more time?
 
-I would add tests for `generate_schedule()` choosing tasks by priority and skipping tasks that don't fit, leaving out completed and future-dated tasks, one-time tasks not repeating, completing a task that doesn't belong to any pet, and two tasks for the same pet at the same time. I would also test inputs the code doesn't validate yet, like times that aren't zero-padded ("9:00"), a frequency with extra spaces ("daily "), and negative available minutes.
+I would add more direct backend tests for `generate_schedule()` choosing tasks by priority and skipping tasks that don't fit, leaving out completed and future-dated tasks, one-time tasks not repeating, completing a task that doesn't belong to any pet, and two tasks for the same pet at the same time. I would also test inputs the code doesn't validate yet, like times that aren't zero-padded ("9:00"), a frequency with extra spaces ("daily "), and negative available minutes.
 
 ---
 

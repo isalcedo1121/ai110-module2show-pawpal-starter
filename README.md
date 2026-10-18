@@ -78,8 +78,6 @@ How they work together: an **Owner** has many **Pets**, and each **Pet** has man
 
 ## 🖥️ Sample Output
 
-Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
-
 Output of `python main.py` (60 available minutes):
 
 ```text
@@ -197,8 +195,6 @@ The existing interface uses Streamlit's built-in components, and the CLI uses Py
 
 ## 📸 Demo Walkthrough
 
-Describe your app in numbered steps so a reader can follow along without watching a video:
-
 ### Streamlit app
 
 Start the app with `streamlit run app.py` (virtual environment activated) and open the URL it prints.
@@ -303,5 +299,3 @@ Conflicts among all incomplete tasks:
 ```
 
 </details>
-
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
