@@ -4,16 +4,40 @@
 
 **a. Initial design**
 
+The three main actions I want users to perform are adding their pets, creating care tasks for each pet, and generating a daily schedule based on task priorities and available time.
+
 - Briefly describe your initial UML design.
+
+My initial design has four classes: Owner, Pet, Task, and Scheduler.
+An owner can have multiple pets, and each pet can have multiple
+care tasks. The scheduler organizes those tasks into a daily schedule.
+
 - What classes did you include, and what responsibilities did you assign to each?
+
+I included Owner to manage pets, Pet to store information about
+each pet and its tasks, Task to represent activities like feeding
+or walking, and Scheduler to organize tasks based on their
+priority and time.
 
 **b. Design changes**
 
 - Did your design change during implementation?
+
+Yes, I made a few changes after reviewing my initial design with AI.
+
 - If yes, describe at least one change and why you made it.
 
----
+Originally, the Scheduler had its own list of tasks, separate
+from the tasks stored in each Pet. I changed it so the Scheduler
+gets tasks through the Owner instead. This avoids having two
+separate lists that could become inconsistent.
 
+I also changed priority from a string to an integer and added
+an available_minutes parameter so the scheduler can eventually
+organize tasks based on priority and available time.
+
+---
+    
 ## 2. Scheduling Logic and Tradeoffs
 
 **a. Constraints and priorities**

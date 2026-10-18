@@ -11,8 +11,8 @@ class Task:
 
     name: str
     duration: int  # minutes
-    priority: str  # e.g. "low", "medium", "high"
-    due_time: str  # e.g. "08:00"
+    priority: int  # higher number = higher priority (e.g. 1 = low, 3 = high)
+    due_time: str  # 24-hour "HH:MM" format, e.g. "08:00"
 
 
 @dataclass
@@ -50,15 +50,12 @@ class Owner:
 
 
 class Scheduler:
-    """Collects tasks and builds a daily care schedule from them."""
+    """Builds a daily care schedule from the tasks of an owner's pets."""
 
-    def __init__(self) -> None:
-        self.tasks: list[Task] = []
+    def __init__(self, owner: Owner) -> None:
+        self.owner: Owner = owner
 
-    def add_task(self, task: Task) -> None:
-        """Add a task to be considered when scheduling."""
-        pass
-
-    def generate_schedule(self) -> list[Task]:
-        """Return the tasks arranged into a daily plan."""
+    def generate_schedule(self, available_minutes: int) -> list[Task]:
+        """Return tasks gathered from owner.pets, arranged into a daily plan
+        that fits within available_minutes."""
         pass

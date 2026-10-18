@@ -21,23 +21,24 @@ classDiagram
     class Task {
         +str name
         +int duration
-        +str priority
+        +int priority
         +str due_time
     }
 
     class Scheduler {
-        +list~Task~ tasks
-        +add_task(task: Task) None
-        +generate_schedule() list~Task~
+        +Owner owner
+        +generate_schedule(available_minutes: int) list~Task~
     }
+
+    note for Task "priority: higher number = higher priority\ndue_time: 24-hour HH:MM string"
 
     Owner "1" o-- "0..*" Pet : owns
     Pet "1" *-- "0..*" Task : has
-    Scheduler "1" --> "0..*" Task : schedules
+    Scheduler "1" --> "1" Owner : plans for
 ```
 
 ## Relationships
 
 - **Owner → Pet (aggregation, 1 to many):** An owner keeps a list of pets and can add or remove them. A pet is its own object and still makes sense apart from any particular owner.
 - **Pet → Task (composition, 1 to many):** Each pet has its own care tasks (feeding, walks, meds). A task belongs to a single pet and has no meaning without it.
-- **Scheduler → Task (association, 1 to many):** The scheduler gathers tasks and orders them into a daily plan with `generate_schedule()`. It points to tasks but does not own them; they still belong to their pets.
+- **Scheduler → Owner (association, 1 to 1):** The scheduler holds a reference to an owner and reads tasks through `owner.pets` when `generate_schedule(available_minutes)` builds the daily plan. It keeps no task list of its own, so each pet's `tasks` is the single source of truth.
